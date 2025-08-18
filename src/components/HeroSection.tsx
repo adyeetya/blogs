@@ -63,19 +63,7 @@ export default function HeroSection() {
               </Button>
             </motion.div>
             
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-8"
-                style={{ 
-                  borderColor: 'rgb(var(--color-orange-500))',
-                  color: 'rgb(var(--color-orange-500))'
-                }}
-              >
-                Watch Video Content
-              </Button>
-            </motion.div>
+            
           </motion.div>
         </div>
       </div>
