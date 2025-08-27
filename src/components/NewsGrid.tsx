@@ -5,104 +5,101 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, User } from 'lucide-react'
+import { useQuery, useInfiniteQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fetchLatestBlogs, fetchOlderBlogs } from '@/lib/blogsApi';
+import { useState } from 'react';
 
-const newsItems = [
-  {
-    id: 1,
-    title: "Saudi's Surj Invests USD 40M in Professional Triathletes Organisation",
-    description: "Saudi's Surj just secured a major investment deal. The company announced a USD 40 million investment...",
-    category: "MARKETS",
-    date: "Jul 28, 2025",
-    author: "WAYA Staff",
-    image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=250&fit=crop"
-  },
-  {
-    id: 2,
-    title: "Digital Payments Are Taking Over Egypt's SME Scene",
-    description: "Visa, a global leader in payments, announced the launch of its new report, 'Value of Acceptance: Understanding the Digital...",
-    category: "MARKETS", 
-    date: "Jul 29, 2025",
-    author: "WAYA Staff",
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=250&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Saudi's Calo Raises USD 39M to Scale to AI-Powered Meal Platform",
-    description: "Saudi's Calo just raised significant funding to expand their AI-powered meal delivery platform across the region...",
-    category: "STARTUPS",
-    date: "Jul 28, 2025", 
-    author: "WAYA Staff",
-    image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&h=250&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Saudi's Sawt Raises USD 1M to Scale AI-Powered Customer Service",
-    description: "Saudi Arabia's Sawt has successfully raised USD 1 million in funding to expand their innovative AI-powered customer service platform...",
-    category: "STARTUPS",
-    date: "Jul 28, 2025",
-    author: "WAYA Staff", 
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop"
-  },
-  {
-    id: 5,
-    title: "Saudi Arabia Just Privatised Its First Sports Clubs",
-    description: "In a groundbreaking move, Saudi Arabia has officially privatised its first sports clubs, marking a significant shift in the kingdom's sports industry...",
-    category: "MARKETS",
-    date: "Jul 27, 2025",
-    author: "WAYA Staff",
-    image: "https://images.unsplash.com/photo-1459865264687-595d652de67e?w=400&h=250&fit=crop"
-  }
-]
 
-export default function NewsGrid() {
+const queryClient = new QueryClient();
+
+function NewsGridContent() {
+  const [page, setPage] = useState(1);
+  const {
+    data: latestData,
+    isLoading: latestLoading,
+    error: latestError,
+  } = useQuery({
+    queryKey: ['latest-blogs'],
+    queryFn: fetchLatestBlogs,
+    staleTime: 1000 * 60 * 5, // 5 min
+  });
+
+  const {
+    data: olderData,
+    isLoading: olderLoading,
+    error: olderError,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['older-blogs'],
+    queryFn: fetchOlderBlogs,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    initialPageParam: 1,
+  });
+
+  // Loading/Error states
+  if (latestLoading || olderLoading) return <div className="py-16 text-center">Loading...</div>;
+  if (latestError || olderError) return <div className="py-16 text-center text-red-500">Error loading blogs.</div>;
+
+  // Latest blogs: show first one big, next two as side articles
+  const latest = latestData?.blogs || [];
+  const featured = latest[0];
+  const side = latest.slice(1, 3);
+
+  // Older blogs: flatten paginated data
+  const older = olderData?.pages?.flatMap((p) => p.blogs) || [];
+
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        {/* Featured Article (Large) */}
+        {/* Latest Blogs */}
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="lg:col-span-2"
-          >
-            <Card className="overflow-hidden border-0 shadow-xl group cursor-pointer h-full">
-              <div className="relative h-80 overflow-hidden">
-                <img 
-                  src={newsItems[1].image} 
-                  alt={newsItems[1].title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <Badge className="absolute top-4 left-4 bg-orange-500 hover:bg-orange-600 text-white border-0">
-                  {newsItems[1].category}
-                </Badge>
-              </div>
-              <CardHeader className="space-y-4">
-                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors">
-                  {newsItems[1].title}
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base leading-relaxed">
-                  {newsItems[1].description}
-                </CardDescription>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 mr-1" />
-                    {newsItems[1].author}
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {newsItems[1].date}
-                  </div>
+          {/* Featured */}
+          {featured && (
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="lg:col-span-2"
+            >
+              <Card className="overflow-hidden border-0 shadow-xl group cursor-pointer h-full">
+                <div className="relative h-80 overflow-hidden">
+                  <img 
+                    src={featured.image} 
+                    alt={featured.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <Badge className="absolute top-4 left-4 bg-orange-500 hover:bg-orange-600 text-white border-0">
+                    {featured.category}
+                  </Badge>
                 </div>
-              </CardHeader>
-            </Card>
-          </motion.div>
-
+                <CardHeader className="space-y-4">
+                  <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors">
+                    {featured.title}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 text-base leading-relaxed">
+                    {featured.description}
+                  </CardDescription>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />
+                      {featured.author}
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {featured.date}
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            </motion.div>
+          )}
           {/* Side Articles */}
           <div className="space-y-6">
-            {newsItems.slice(0, 2).map((item, index) => (
+            {side.map((item: any, index: number) => (
               <motion.div
                 key={item.id}
                 initial={{ y: 50, opacity: 0 }}
@@ -144,9 +141,9 @@ export default function NewsGrid() {
           </div>
         </div>
 
-        {/* Bottom Grid */}
+        {/* Older Blogs (Paginated) */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {newsItems.slice(2).map((item, index) => (
+          {older.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ y: 50, opacity: 0 }}
@@ -189,7 +186,25 @@ export default function NewsGrid() {
             </motion.div>
           ))}
         </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-center mt-8">
+          <button
+            className="px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50"
+            onClick={() => fetchNextPage()}
+            disabled={!hasNextPage || isFetchingNextPage}
+          >
+            {isFetchingNextPage ? 'Loading more...' : hasNextPage ? 'Load More' : 'No More Blogs'}
+          </button>
+        </div>
       </div>
     </section>
-  )
+  );
+}
+
+export default function NewsGrid() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <NewsGridContent />
+    </QueryClientProvider>
+  );
 }
