@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { Inter, Poppins } from 'next/font/google'
 import { ThemeProvider } from "../components/contexts/theme-provider"
 import "./globals.css";
-
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
@@ -36,7 +37,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+           <Navigation />
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
