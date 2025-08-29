@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback } from "react";
+"use client";
+import React, { useCallback, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,7 +19,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
-
+import ImageUpload from "./ImageUpload";
 // Validation schema matching backend
 const schema = z.object({
   title: z
@@ -53,7 +54,7 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
       contentType: "html",
     },
   });
-
+  const [imageUrl, setImageUrl] = useState("");
   // Editor instance
   const editor = useEditor({
     immediatelyRender: false,
@@ -315,13 +316,25 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Featured Image URL
-              </label>
-              <Input
-                placeholder="https://example.com/image.jpg"
-                {...register("featuredImage")}
-              />
+          
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Featured Image
+                </label>
+                <ImageUpload
+                  onUpload={(url) => {
+                    setImageUrl(url ?? "");
+                    setValue("featuredImage", url ?? undefined, { shouldValidate: true });
+                  }}
+                  disabled={isSubmitting}
+                />
+               
+                {errors.featuredImage && (
+                  <p className="text-destructive text-sm mt-1">
+                    {errors.featuredImage.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

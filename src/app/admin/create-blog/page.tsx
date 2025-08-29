@@ -17,7 +17,9 @@ export default function BlogCreatePage() {
     setLoading(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const response = await axios.post(`${SERVER_URL}/api/admin/blogs`, data, {
+      console.log("Creating blog with data:", data);
+      
+      const response = await axios.post(`${SERVER_URL}/api/blogs`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: token ? `Bearer ${token}` : "",
