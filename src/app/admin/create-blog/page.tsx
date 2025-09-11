@@ -25,12 +25,12 @@ export default function BlogCreatePage() {
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
-
+      console.log("Blog created successfully:", response.data);
       // Optional: Show success message
       toast?.success("Blog post created successfully!");
       
       // Redirect to admin blogs list
-      router.push("/admin/blogs");
+      // router.push("/admin/blogs");
     } catch (err: any) {
       console.error("Blog creation error:", err);
       toast?.error(err?.response?.data?.message || "Failed to create blog post");

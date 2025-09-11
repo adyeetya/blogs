@@ -36,6 +36,9 @@ const schema = z.object({
   featuredImage: z.string().optional(),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   contentType: z.enum(["html", "markdown"]).default("html"),
+  author: z.string().min(1, "Author is required"),
+  likesCount: z.coerce.number().int().min(0, "Likes must be 0 or more").optional(),
+  savesCount: z.coerce.number().int().min(0, "Saves must be 0 or more").optional(),
 });
 
 export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
@@ -52,6 +55,9 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
       content: "",
       status: "draft",
       contentType: "html",
+      author: "",
+      likesCount: 0,
+      savesCount: 0,
     },
   });
   const [imageUrl, setImageUrl] = useState("");
@@ -86,6 +92,8 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
       excerpt: data.excerpt || undefined,
       category: data.category || undefined,
       featuredImage: data.featuredImage || undefined,
+      likesCount: data.likesCount !== undefined ? Number(data.likesCount) : 0,
+      savesCount: data.savesCount !== undefined ? Number(data.savesCount) : 0,
     };
     onSubmit(processedData);
   };
@@ -290,8 +298,17 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
             />
           </div>
 
-          {/* Status and Featured Image */}
+          {/* Author, Status, Featured Image, Likes, Saves */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Author */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Author *</label>
+              <Input placeholder="Enter author name..." {...register("author")}/>
+              {errors.author && (
+                <p className="text-destructive text-sm mt-1">{errors.author.message}</p>
+              )}
+            </div>
+            {/* Status */}
             <div>
               <label className="block text-sm font-medium mb-2">Status</label>
               <Controller
@@ -314,27 +331,49 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                 )}
               />
             </div>
+          </div>
 
+          {/* Featured Image, Likes, Saves */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Featured Image */}
             <div>
-          
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Featured Image
-                </label>
-                <ImageUpload
-                  onUpload={(url) => {
-                    setImageUrl(url ?? "");
-                    setValue("featuredImage", url ?? undefined, { shouldValidate: true });
-                  }}
-                  disabled={isSubmitting}
-                />
-               
-                {errors.featuredImage && (
-                  <p className="text-destructive text-sm mt-1">
-                    {errors.featuredImage.message}
-                  </p>
-                )}
-              </div>
+              <label className="block text-sm font-medium mb-2">Featured Image</label>
+              <ImageUpload
+                onUpload={(url) => {
+                  setImageUrl(url ?? "");
+                  setValue("featuredImage", url ?? undefined, { shouldValidate: true });
+                }}
+                disabled={isSubmitting}
+              />
+              {errors.featuredImage && (
+                <p className="text-destructive text-sm mt-1">{errors.featuredImage.message}</p>
+              )}
+            </div>
+            {/* Likes Count */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Likes Count</label>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                {...register("likesCount")}
+              />
+              {errors.likesCount && (
+                <p className="text-destructive text-sm mt-1">{errors.likesCount.message}</p>
+              )}
+            </div>
+            {/* Saves Count */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Saves Count</label>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                {...register("savesCount")}
+              />
+              {errors.savesCount && (
+                <p className="text-destructive text-sm mt-1">{errors.savesCount.message}</p>
+              )}
             </div>
           </div>
 
