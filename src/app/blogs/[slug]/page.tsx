@@ -47,11 +47,7 @@ const dummyBlog = {
   __v: 0, // mongoose version key
 };
 
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
+type BlogParams = Promise<{ slug: string }>;
 
 async function fetchBlog(slug: string) {
   const res = await fetch(`${SERVER_URL}/api/blogs/${slug}`, {
@@ -65,7 +61,7 @@ async function fetchBlog(slug: string) {
   return res.json();
 }
 
-const page = async ({ params }: PageProps) => {
+export default async function PPage({ params }: { params: BlogParams }) {
   try {
     // const blog = await fetchBlog(params.slug);
     const blog = dummyBlog;
@@ -203,6 +199,4 @@ const page = async ({ params }: PageProps) => {
       </div>
     );
   }
-};
-
-export default page;
+}

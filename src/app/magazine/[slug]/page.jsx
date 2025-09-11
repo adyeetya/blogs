@@ -14,7 +14,7 @@ const mockMagazineData = {
 };
 
 const ImageFlipbook = () => {
-  const [pages, setPages] = useState<string[]>([
+  const [pages, setPages] = useState([
     "/images/9f08ed016e480b052a02dc76fa54b5c7.jpg",
     "/images/1131w-71rDOkWy3kc.webp",
     "/images/1131w-lqndjVe3Zp0.webp",
@@ -46,7 +46,7 @@ const ImageFlipbook = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const onPageFlip = (e: any) => {
+  const onPageFlip = (e) => {
     setCurrentPage(e.data);
   };
 
