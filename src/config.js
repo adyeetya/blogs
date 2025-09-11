@@ -1,2 +1,2 @@
 // config.ts
-export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5009";
+export const SERVER_URL =  "https://backend.foundersmiddleeast.com";
