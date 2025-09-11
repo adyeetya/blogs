@@ -65,7 +65,7 @@ async function fetchBlog(slug: string) {
   return res.json();
 }
 
-const page = async ({ params }: PageProps) => {
+const page = async ({ params }: { params: { slug: string } }) => {
   try {
     // const blog = await fetchBlog(params.slug);
     const blog = dummyBlog;
