@@ -49,31 +49,23 @@ const dummyBlog = {
   __v: 0, // mongoose version key
 };
 
-// type BlogParams = Promise<{ slug: string }>;
+type BlogParams = Promise<{ slug: string }>;
+
 
 async function fetchBlog(slug: string) {
   const res = await fetch(`${SERVER_URL}/api/blogs/${slug}`, {
     next: { revalidate: 3600 }, // Cache for 1 hour (3600 seconds)
   });
-  // const res = await fetch(`${SERVER_URL}/api/blogs/${slug}`, {
-  //   cache: "no-store",
-  // });
-  console.log("Fetch response:", res);
   if (!res.ok) {
     throw new Error("Failed to fetch blog post");
   }
-
   return res.json();
 }
-
-type BlogParams = { slug: string };
-
-export default async function Page({ params }: { params: BlogParams }) {
+export default async function PPage({ params }: { params: BlogParams }) {
   try {
-   
-    const { slug } = params; // await the Promise
-    const blogsee = await fetchBlog(slug);
-    console.log("Fetched blog:", blogsee.data);
+    const blogsee = await fetchBlog((await params).slug); // await the Promise
+    
+ 
     const blog = blogsee.data;
 
     return (
