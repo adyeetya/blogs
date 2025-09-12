@@ -14,6 +14,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+
 } from "@/components/ui/select";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -36,7 +37,7 @@ const schema = z.object({
   tags: z.string().optional(),
   category: z.string().optional(), // Category ID
   featuredImage: z.string().min(1, "Featured image is required"),
-  // status removed
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
   contentType: z.enum(["html", "markdown"]).default("html"),
   author: z.string().min(1, "Author is required"),
   likesCount: z.coerce.number().int().min(0, "Likes must be 0 or more").optional(),
@@ -50,13 +51,13 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
   const [newCat, setNewCat] = useState({ name: '', description: '', color: '' });
   const [addingCat, setAddingCat] = useState(false);
   // Fetch categories on mount
-  useEffect(() => {
-    setCatLoading(true);
-    fetchCategories()
-      .then(res => setCategories(res.data))
-      .catch(() => toast.error('Failed to load categories'))
-      .finally(() => setCatLoading(false));
-  }, []);
+  // useEffect(() => {
+  //   setCatLoading(true);
+  //   fetchCategories()
+  //     .then(res => setCategories(res.data))
+  //     .catch(() => toast.error('Failed to load categories'))
+  //     .finally(() => setCatLoading(false));
+  // }, []);
   const {
     control,
     register,
@@ -68,7 +69,7 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
     resolver: zodResolver(schema),
     defaultValues: {
       content: "",
-      // status removed
+      status: "draft",
       contentType: "html",
       author: "",
       likesCount: 0,
@@ -100,9 +101,9 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
       ...data,
       tags: data.tags
         ? data.tags
-            .split(",")
-            .map((tag: string) => tag.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((tag: string) => tag.trim())
+          .filter(Boolean)
         : [],
       // Remove empty optional fields
       excerpt: data.excerpt || undefined,
@@ -141,7 +142,7 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
         <h2 className="text-2xl font-bold">Create New Blog Post</h2>
       </CardHeader>
       <CardContent>
-  <form onSubmit={handleSubmit(processSubmit, handleFormError)} className="space-y-6">
+        <form onSubmit={handleSubmit(processSubmit, handleFormError)} className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-2">Title *</label>
@@ -414,12 +415,38 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
             {/* Author */}
             <div>
               <label className="block text-sm font-medium mb-2">Author *</label>
-              <Input placeholder="Enter author name..." {...register("author")}/>
+              <Input placeholder="Enter author name..." {...register("author")} />
               {errors.author && (
                 <p className="text-destructive text-sm mt-1">{errors.author.message}</p>
               )}
             </div>
           </div>
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Status *</label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  
+                    <SelectContent className=" bg-white">
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                 
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-destructive text-sm mt-1">{errors.status.message}</p>
+            )}
+          </div>
+
 
           {/* Featured Image, Likes, Saves */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
