@@ -2,6 +2,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, User, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -69,37 +70,39 @@ function NewsGridContent() {
                 viewport={{ once: true }}
                 className="lg:col-span-2"
               >
-                <Card className="overflow-hidden border-0 shadow-xl group cursor-pointer h-full">
-                  <div className="relative h-80 overflow-hidden">
-                    <img 
-                      src={featured.image} 
-                      alt={featured.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <Badge className="absolute top-4 left-4 bg-orange-500 hover:bg-orange-600 text-white border-0">
-                      {featured.category}
-                    </Badge>
-                  </div>
-                  <CardHeader className="space-y-4">
-                    <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors">
-                      {featured.title}
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 text-base leading-relaxed">
-                      {featured.description}
-                    </CardDescription>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
-                        {featured.author}
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {featured.date}
-                      </div>
+                <Link href={`/blogs/${featured.slug}`} className="block h-full">
+                  <Card className="overflow-hidden border-0 shadow-xl group cursor-pointer h-full">
+                    <div className="relative h-80 overflow-hidden">
+                      <img 
+                        src={featured.image} 
+                        alt={featured.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      <Badge className="absolute top-4 left-4 bg-orange-500 hover:bg-orange-600 text-white border-0">
+                        {featured.category}
+                      </Badge>
                     </div>
-                  </CardHeader>
-                </Card>
+                    <CardHeader className="space-y-4">
+                      <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors">
+                        {featured.title}
+                      </CardTitle>
+                      <CardDescription className="text-gray-600 text-base leading-relaxed">
+                        {featured.description}
+                      </CardDescription>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 mr-1" />
+                          {featured.author}
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {featured.date}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </Link>
               </motion.div>
             )}
             
@@ -115,33 +118,35 @@ function NewsGridContent() {
                   whileHover={{ y: -2 }}
                   className="group cursor-pointer"
                 >
-                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
-                    <div className="relative h-40 overflow-hidden">
-                      <img 
-                        src={item.image} 
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <Badge className="absolute top-3 left-3 bg-orange-500 hover:bg-orange-600 text-white border-0 text-xs">
-                        {item.category}
-                      </Badge>
-                    </div>
-                    <CardHeader className="p-4">
-                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-2">
-                        {item.title}
-                      </CardTitle>
-                      <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
-                        <div className="flex items-center">
-                          <User className="h-3 w-3 mr-1" />
-                          {item.author}
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          {item.date}
-                        </div>
+                  <Link href={`/blogs/${item.slug}`} className="block h-full">
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                      <div className="relative h-40 overflow-hidden">
+                        <img 
+                          src={item.image} 
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <Badge className="absolute top-3 left-3 bg-orange-500 hover:bg-orange-600 text-white border-0 text-xs">
+                          {item.category}
+                        </Badge>
                       </div>
-                    </CardHeader>
-                  </Card>
+                      <CardHeader className="p-4">
+                        <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-2">
+                          {item.title}
+                        </CardTitle>
+                        <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
+                          <div className="flex items-center">
+                            <User className="h-3 w-3 mr-1" />
+                            {item.author}
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {item.date}
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  </Link>
                 </motion.div>
               ))}
             </div>
@@ -162,36 +167,38 @@ function NewsGridContent() {
                 whileHover={{ y: -5 }}
                 className="group cursor-pointer"
               >
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full overflow-hidden">
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={item.image} 
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <Badge className="absolute top-4 left-4 bg-orange-500 hover:bg-orange-600 text-white border-0">
-                      {item.category}
-                    </Badge>
-                  </div>
-                  <CardHeader className="p-6">
-                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-2 mb-3">
-                      {item.title}
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 line-clamp-3 mb-4">
-                      {item.description}
-                    </CardDescription>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
-                        {item.author}
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {item.date}
-                      </div>
+                <Link href={`/blogs/${item.slug}`} className="block h-full">
+                  <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full overflow-hidden">
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={item.image} 
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <Badge className="absolute top-4 left-4 bg-orange-500 hover:bg-orange-600 text-white border-0">
+                        {item.category}
+                      </Badge>
                     </div>
-                  </CardHeader>
-                </Card>
+                    <CardHeader className="p-6">
+                      <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-2 mb-3">
+                        {item.title}
+                      </CardTitle>
+                      <CardDescription className="text-gray-600 line-clamp-3 mb-4">
+                        {item.description}
+                      </CardDescription>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 mr-1" />
+                          {item.author}
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {item.date}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>

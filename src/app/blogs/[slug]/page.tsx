@@ -1,9 +1,11 @@
+// export const dynamic = "force-dynamic";
+
 import React from "react";
 import { SERVER_URL } from "@/config";
 
 const dummyBlog = {
   _id: "660fa5ccaf7cf0158cfeabde",
-  title: "The Future of Web Development: Trends in 2025",
+  title: "The Future of Web : Trends in 2025",
   content: `
     <h2>Overview</h2>
     <p>The landscape of web development is rapidly evolving with modern frameworks and AI-driven tools.</p>
@@ -47,13 +49,16 @@ const dummyBlog = {
   __v: 0, // mongoose version key
 };
 
-type BlogParams = Promise<{ slug: string }>;
+// type BlogParams = Promise<{ slug: string }>;
 
 async function fetchBlog(slug: string) {
   const res = await fetch(`${SERVER_URL}/api/blogs/${slug}`, {
     next: { revalidate: 3600 }, // Cache for 1 hour (3600 seconds)
   });
-
+  // const res = await fetch(`${SERVER_URL}/api/blogs/${slug}`, {
+  //   cache: "no-store",
+  // });
+  console.log("Fetch response:", res);
   if (!res.ok) {
     throw new Error("Failed to fetch blog post");
   }
@@ -61,15 +66,19 @@ async function fetchBlog(slug: string) {
   return res.json();
 }
 
-export default async function PPage({ params }: { params: BlogParams }) {
+type BlogParams = { slug: string };
+
+export default async function Page({ params }: { params: BlogParams }) {
   try {
-    // const blog = await fetchBlog(params.slug);
-    const blog = dummyBlog;
+   
+    const { slug } = params; // await the Promise
+    const blogsee = await fetchBlog(slug);
+    console.log("Fetched blog:", blogsee.data);
+    const blog = blogsee.data;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-4xl mx-auto px-6 py-24">
-          {/* Header Section */}
           <div className="mb-8">
             <div className="flex items-center gap-2 text-orange-600 text-sm font-medium mb-4">
               <span>Blog</span>
@@ -81,36 +90,39 @@ export default async function PPage({ params }: { params: BlogParams }) {
               {blog.title}
             </h1>
 
-            {/* Meta information */}
             <div className="flex flex-wrap items-center gap-6 text-orange-700 text-sm mb-6">
               {blog.author && (
                 <div className="flex items-center gap-2">
-                  <span>By {blog.author.name || "Author"}</span>
+                  <span>
+                    By{" "}
+                    {typeof blog.author === "string"
+                      ? blog.author
+                      : blog.author?.name ?? "Author"}
+                  </span>
                 </div>
               )}
-              {blog.publishedAt && (
+              {blog.createdAt && (
                 <div className="flex items-center gap-2">
-                  <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
+                  <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
                 </div>
               )}
-              {blog.readingTime && (
+              {typeof blog.readingTime === "number" && (
                 <div className="flex items-center gap-2">
                   <span>{blog.readingTime} min read</span>
                 </div>
               )}
-              {blog.views && (
+              {typeof blog.views === "number" && (
                 <div className="flex items-center gap-2">
                   <span>{blog.views} views</span>
                 </div>
               )}
             </div>
 
-            {/* Tags */}
-            {blog.tags && blog.tags.length > 0 && (
+            {Array.isArray(blog.tags) && blog.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
-                {blog.tags.map((tag: string, index: number) => (
+                {blog.tags.map((tag: string, i: number) => (
                   <span
-                    key={index}
+                    key={i}
                     className="px-3 py-1 bg-orange-200 text-orange-800 text-xs font-medium rounded-full"
                   >
                     #{tag}
@@ -120,10 +132,10 @@ export default async function PPage({ params }: { params: BlogParams }) {
             )}
           </div>
 
-          {/* Featured Image */}
           <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
             <img
               src={
+                blog.featuredImage ||
                 blog.image ||
                 "https://res.cloudinary.com/dx9d4xqej/image/upload/v1696343303/default_blog_image_oqtqtp.png"
               }
@@ -132,7 +144,6 @@ export default async function PPage({ params }: { params: BlogParams }) {
             />
           </div>
 
-          {/* Excerpt */}
           {blog.excerpt && (
             <div className="mb-8 p-6 bg-orange-100 border-l-4 border-orange-500 rounded-r-lg">
               <p className="text-orange-900 text-lg italic leading-relaxed">
@@ -141,25 +152,26 @@ export default async function PPage({ params }: { params: BlogParams }) {
             </div>
           )}
 
-          {/* Main Content */}
           <article className="prose prose-lg prose-orange max-w-none">
             <div
               className="text-gray-800 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
+              dangerouslySetInnerHTML={{
+                __html: typeof blog.content === "string" ? blog.content : "",
+              }}
+              // dangerouslySetInnerHTML={{ __html: safeHtml }}
             />
           </article>
 
-          {/* Interaction Section */}
           <div className="mt-12 pt-8 border-t border-orange-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                {blog.likesCount !== undefined && (
+                {typeof blog.likesCount === "number" && (
                   <div className="flex items-center gap-2 text-orange-600">
                     <span className="text-lg">👍</span>
                     <span>{blog.likesCount} likes</span>
                   </div>
                 )}
-                {blog.savesCount !== undefined && (
+                {typeof blog.savesCount === "number" && (
                   <div className="flex items-center gap-2 text-orange-600">
                     <span className="text-lg">📌</span>
                     <span>{blog.savesCount} saves</span>
@@ -168,7 +180,7 @@ export default async function PPage({ params }: { params: BlogParams }) {
               </div>
 
               <div className="text-orange-600 text-sm">
-                {blog.wordCount && (
+                {typeof blog.wordCount === "number" && (
                   <span>{blog.wordCount.toLocaleString()} words</span>
                 )}
               </div>
@@ -190,7 +202,7 @@ export default async function PPage({ params }: { params: BlogParams }) {
             couldn&apos;t be loaded.
           </p>
           <button
-            onClick={() => window.history.back()}
+            // onClick={() => window.history.back()}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
           >
             Go Back
