@@ -12,13 +12,14 @@ import { toast } from "sonner"; // Optional: for better notifications
 export default function BlogCreatePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [formKey, setFormKey] = useState(0); // for resetting BlogCreate
 
   const handleCreate = async (data: any) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("admin_token");
       console.log("Creating blog with data:", data);
-      
+
       const response = await axios.post(`${SERVER_URL}/api/blogs`, data, {
         headers: {
           "Content-Type": "application/json",
@@ -26,14 +27,27 @@ export default function BlogCreatePage() {
         },
       });
       console.log("Blog created successfully:", response.data);
-      // Optional: Show success message
       toast?.success("Blog post created successfully!");
-      
-      // Redirect to admin blogs list
+      setFormKey((k) => k + 1); // Reset the form
       // router.push("/admin/blogs");
     } catch (err: any) {
       console.error("Blog creation error:", err);
-      toast?.error(err?.response?.data?.message || "Failed to create blog post");
+      // Show validation errors if present
+      const details = err?.response?.data?.details;
+      if (details && Array.isArray(details)) {
+        toast?.error(
+          <div>
+            <div className="font-semibold mb-1">Validation Error:</div>
+            <ul className="list-disc ml-5">
+              {details.map((msg: string, idx: number) => (
+                <li key={idx}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      } else {
+        toast?.error(err?.response?.data?.error || err?.message || "Failed to create blog post");
+      }
     } finally {
       setLoading(false);
     }
@@ -42,7 +56,7 @@ export default function BlogCreatePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
-        <BlogCreate onSubmit={handleCreate} />
+  <BlogCreate key={formKey} onSubmit={handleCreate} />
         {loading && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
             <div className="flex items-center space-x-2">
