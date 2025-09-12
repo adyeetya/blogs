@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,6 +20,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import ImageUpload from "./ImageUpload";
+import { toast } from "sonner";
+import { fetchCategories, createCategory } from "@/lib/categoriesApi";
 // Validation schema matching backend
 const schema = z.object({
   title: z
@@ -33,8 +35,8 @@ const schema = z.object({
     .optional(),
   tags: z.string().optional(),
   category: z.string().optional(), // Category ID
-  featuredImage: z.string().optional(),
-  status: z.enum(["draft", "published", "archived"]).default("draft"),
+  featuredImage: z.string().min(1, "Featured image is required"),
+  // status removed
   contentType: z.enum(["html", "markdown"]).default("html"),
   author: z.string().min(1, "Author is required"),
   likesCount: z.coerce.number().int().min(0, "Likes must be 0 or more").optional(),
@@ -42,6 +44,19 @@ const schema = z.object({
 });
 
 export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [catLoading, setCatLoading] = useState(false);
+  const [showAddCat, setShowAddCat] = useState(false);
+  const [newCat, setNewCat] = useState({ name: '', description: '', color: '' });
+  const [addingCat, setAddingCat] = useState(false);
+  // Fetch categories on mount
+  useEffect(() => {
+    setCatLoading(true);
+    fetchCategories()
+      .then(res => setCategories(res.data))
+      .catch(() => toast.error('Failed to load categories'))
+      .finally(() => setCatLoading(false));
+  }, []);
   const {
     control,
     register,
@@ -53,11 +68,12 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
     resolver: zodResolver(schema),
     defaultValues: {
       content: "",
-      status: "draft",
+      // status removed
       contentType: "html",
       author: "",
       likesCount: 0,
       savesCount: 0,
+      featuredImage: "",
     },
   });
   const [imageUrl, setImageUrl] = useState("");
@@ -98,6 +114,25 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
     onSubmit(processedData);
   };
 
+  // Show toast for client-side validation errors
+  const handleFormError = (formErrors: any) => {
+    const errorMessages = Object.values(formErrors)
+      .map((err: any) => err?.message)
+      .filter(Boolean);
+    if (errorMessages.length > 0) {
+      toast.error(
+        <div>
+          <div className="font-semibold mb-1">Validation Error:</div>
+          <ul className="list-disc ml-5">
+            {errorMessages.map((msg, idx) => (
+              <li key={idx}>{msg}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+  };
+
   if (!editor) return null;
 
   return (
@@ -106,7 +141,7 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
         <h2 className="text-2xl font-bold">Create New Blog Post</h2>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(processSubmit)} className="space-y-6">
+  <form onSubmit={handleSubmit(processSubmit, handleFormError)} className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-2">Title *</label>
@@ -298,7 +333,83 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
             />
           </div>
 
-          {/* Author, Status, Featured Image, Likes, Saves */}
+          {/* Category select/add */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Category</label>
+            {catLoading ? (
+              <div>Loading categories...</div>
+            ) : (
+              <div className="flex gap-2 items-center">
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-64">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <Button type="button" size="sm" variant="outline" onClick={() => setShowAddCat(v => !v)}>
+                  {showAddCat ? 'Cancel' : 'Add New'}
+                </Button>
+              </div>
+            )}
+            {showAddCat && (
+              <div className="mt-2 flex flex-col gap-2 border p-3 rounded bg-muted/30">
+                <Input
+                  placeholder="Category name"
+                  value={newCat.name}
+                  onChange={e => setNewCat({ ...newCat, name: e.target.value })}
+                  required
+                  className="w-64"
+                />
+                <Input
+                  placeholder="Description (optional)"
+                  value={newCat.description}
+                  onChange={e => setNewCat({ ...newCat, description: e.target.value })}
+                  className="w-64"
+                />
+                <Input
+                  placeholder="#Color (optional)"
+                  value={newCat.color}
+                  onChange={e => setNewCat({ ...newCat, color: e.target.value })}
+                  className="w-64"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={addingCat}
+                  onClick={async () => {
+                    setAddingCat(true);
+                    try {
+                      const token = localStorage.getItem('admin_token') || '';
+                      const res = await createCategory(newCat, token);
+                      setCategories((prev) => [...prev, res.data]);
+                      setValue('category', res.data._id, { shouldValidate: true });
+                      setShowAddCat(false);
+                      setNewCat({ name: '', description: '', color: '' });
+                      toast.success('Category added!');
+                    } catch (err: any) {
+                      toast.error(err?.response?.data?.error || 'Failed to add category');
+                    } finally {
+                      setAddingCat(false);
+                    }
+                  }}
+                >
+                  {addingCat ? 'Adding...' : 'Add Category'}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Author, Featured Image, Likes, Saves */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Author */}
             <div>
@@ -308,40 +419,17 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                 <p className="text-destructive text-sm mt-1">{errors.author.message}</p>
               )}
             </div>
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Status</label>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
           </div>
 
           {/* Featured Image, Likes, Saves */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Featured Image */}
+            {/* Featured Image (required) */}
             <div>
-              <label className="block text-sm font-medium mb-2">Featured Image</label>
+              <label className="block text-sm font-medium mb-2">Featured Image *</label>
               <ImageUpload
                 onUpload={(url) => {
                   setImageUrl(url ?? "");
-                  setValue("featuredImage", url ?? undefined, { shouldValidate: true });
+                  setValue("featuredImage", url ?? "", { shouldValidate: true });
                 }}
                 disabled={isSubmitting}
               />

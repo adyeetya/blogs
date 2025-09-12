@@ -5,6 +5,7 @@ import { ThemeProvider } from "../components/contexts/theme-provider"
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { Toaster } from "sonner";
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
@@ -37,7 +38,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-           <Navigation />
+          <Toaster richColors position="top-center" />
+          <Navigation />
           {children}
           <Footer />
         </ThemeProvider>
