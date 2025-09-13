@@ -2,52 +2,8 @@
 
 import React from "react";
 import { SERVER_URL } from "@/config";
+import { Share2, ThumbsUp } from "lucide-react";
 
-const dummyBlog = {
-  _id: "660fa5ccaf7cf0158cfeabde",
-  title: "The Future of Web : Trends in 2025",
-  content: `
-    <h2>Overview</h2>
-    <p>The landscape of web development is rapidly evolving with modern frameworks and AI-driven tools.</p>
-    <h3>Key Trends</h3>
-    <ul>
-      <li>Server Components in React</li>
-      <li>AI Assistance for Coding</li>
-      <li>Performance-centric architectures</li>
-    </ul>
-    <p><strong>Stay tuned</strong> for the next big thing!</p>
-    <img src="https://www.example.com/sample-image.jpg" alt="Web Trends" />
-  `,
-  image:
-    "https://res.cloudinary.com/dx9d4xqej/image/upload/v1696343303/default_blog_image_oqtqtp.png",
-  excerpt:
-    "Discover the hottest web development trends for 2025 including React Server Components, AI-powered coding assistants, and more. Explore what's next in tech.",
-  slug: "the-future-of-web-development-trends-in-2025",
-  author: {
-    _id: "650abfeeb4e31875647cee98",
-    name: "Alex Tan",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-  },
-  tags: ["react", "nextjs", "webdev", "2025", "trends"],
-  category: {
-    _id: "662d97fdaf7cf0158cfeabcd",
-    name: "Development",
-  },
-  featuredImage: "https://www.example.com/featured.jpg",
-  status: "published",
-  publishedAt: "2025-09-01T08:10:00.000Z",
-  views: 823,
-  likesCount: 41,
-  savesCount: 12,
-  wordCount: 254,
-  readingTime: 2,
-  plainTextContent:
-    "The landscape of web development is rapidly evolving with modern frameworks and AI-driven tools. Key Trends: Server Components in React, AI Assistance for Coding, Performance-centric architectures. Stay tuned for the next big thing!",
-  contentType: "html",
-  createdAt: "2025-08-25T12:15:00.000Z",
-  updatedAt: "2025-09-01T09:00:00.000Z",
-  __v: 0, // mongoose version key
-};
 
 type BlogParams = Promise<{ slug: string }>;
 
@@ -75,10 +31,10 @@ export default async function PPage({ params }: { params: BlogParams }) {
             <div className="flex items-center gap-2 text-orange-600 text-sm font-medium mb-4">
               <span>Blog</span>
               <span>/</span>
-              <span className="text-orange-800">{blog.title}</span>
+              <span className="text-xs md:text-md text-orange-800">{blog.title}</span>
             </div>
 
-            <h1 className="text-5xl font-bold text-orange-500 leading-tight mb-4">
+            <h1 className="text-xl lg:text-5xl font-bold text-orange-500 leading-tight mb-4">
               {blog.title}
             </h1>
 
@@ -159,14 +115,14 @@ export default async function PPage({ params }: { params: BlogParams }) {
               <div className="flex items-center gap-6">
                 {typeof blog.likesCount === "number" && (
                   <div className="flex items-center gap-2 text-orange-600">
-                    <span className="text-lg">👍</span>
+                    <span className="text-lg"><ThumbsUp /></span>
                     <span>{blog.likesCount} likes</span>
                   </div>
                 )}
                 {typeof blog.savesCount === "number" && (
                   <div className="flex items-center gap-2 text-orange-600">
-                    <span className="text-lg">📌</span>
-                    <span>{blog.savesCount} saves</span>
+                    <span className="text-lg"><Share2 /></span>
+                    <span>{blog.savesCount} Shares </span>
                   </div>
                 )}
               </div>
