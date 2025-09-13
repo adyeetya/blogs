@@ -4,15 +4,27 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Menu, X, Search, Sun, Moon } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
+import { useBlogSearch } from '@/lib/useBlogSearch'
+
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const [isReadHovered, setIsReadHovered] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [search, setSearch] = useState('');
   const { theme, setTheme } = useTheme()
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [showResults, setShowResults] = useState(false);
+  const { data, isLoading } = useBlogSearch(
+    { q: search, limit: 5 },
+    !!search && searchOpen && showResults
+  );
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -127,11 +139,92 @@ export default function Navigation() {
                 variant="ghost"
                 size="sm"
                 className="text-white hover:bg-orange-600 dark:hover:bg-orange-700 hidden sm:flex items-center space-x-2 transition-colors duration-200"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Open search"
               >
                 <Search className="h-4 w-4" />
                 <span className="hidden lg:inline text-sm">Search</span>
               </Button>
             </motion.div>
+      {/* Search Modal */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+            onClick={() => setSearchOpen(false)}
+          >
+            <motion.form
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg relative"
+              onClick={e => e.stopPropagation()}
+              autoComplete="off"
+              onSubmit={e => {
+                e.preventDefault();
+                if (search.trim()) {
+                  setShowResults(true);
+                }
+              }}
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={search}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  setShowResults(false);
+                }}
+                onFocus={() => search && setShowResults(true)}
+                placeholder="Search stories, topics, or regions..."
+                className="w-full px-6 py-4 text-lg rounded-full border-2 bg-card text-card-foreground focus:border-orange-500 focus:outline-none shadow mb-4"
+                autoFocus
+                autoComplete="off"
+              />
+              {/* Results Dropdown */}
+              {showResults && search && (
+                <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 text-left max-h-72 overflow-y-auto">
+                  {isLoading && (
+                    <div className="px-6 py-4 text-gray-500">Searching...</div>
+                  )}
+                  {data && data.blogs && data.blogs.length > 0 ? (
+                    data.blogs.map((blog: { slug: string; title: string }) => (
+                      <button
+                        key={blog.slug}
+                        type="button"
+                        className="w-full text-left px-6 py-3 hover:bg-orange-50 focus:bg-orange-100 focus:outline-none transition-colors text-base border-b last:border-b-0 border-gray-100"
+                        onClick={() => {
+                          setSearchOpen(false);
+                          setShowResults(false);
+                          setSearch('');
+                          router.push(`/blogs/${blog.slug}`);
+                        }}
+                      >
+                        {blog.title}
+                      </button>
+                    ))
+                  ) : (!isLoading && search) ? (
+                    <div className="px-6 py-4 text-gray-500">No results found.</div>
+                  ) : null}
+                </div>
+              )}
+              <div className="flex justify-end gap-2 mt-4">
+                <Button type="button" variant="ghost" onClick={() => setSearchOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white">
+                  <Search className="h-5 w-5 mr-1" />
+                  Search
+                </Button>
+              </div>
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
             {/* Theme Toggle */}
             <motion.div

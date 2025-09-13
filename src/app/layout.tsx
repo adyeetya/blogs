@@ -6,6 +6,7 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
+import ReactQueryProvider from '@/components/ReactQueryProvider';
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
@@ -32,17 +33,19 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`} suppressHydrationWarning>
       <body className="font-inter antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Toaster richColors position="top-center" />
-          <Navigation />
-          {children}
-          <Footer />
-        </ThemeProvider>
+        <ReactQueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster richColors position="top-center" />
+            <Navigation />
+            {children}
+            <Footer />
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
