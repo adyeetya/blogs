@@ -28,11 +28,11 @@ export default async function PPage({ params }: { params: BlogParams }) {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-4xl mx-auto px-6 py-24">
           <div className="mb-8">
-            <div className="flex items-center gap-2 text-orange-600 text-sm font-medium mb-4">
+            {/* <div className="flex items-center gap-2 text-orange-600 text-sm font-medium mb-4">
               <span>Blog</span>
               <span>/</span>
               <span className="text-xs md:text-md text-orange-800">{blog.title}</span>
-            </div>
+            </div> */}
 
             <h1 className="text-xl lg:text-5xl font-bold text-orange-500 leading-tight mb-4">
               {blog.title}

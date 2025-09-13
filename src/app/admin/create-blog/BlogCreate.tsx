@@ -14,7 +14,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-
 } from "@/components/ui/select";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -40,24 +39,36 @@ const schema = z.object({
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   contentType: z.enum(["html", "markdown"]).default("html"),
   author: z.string().min(1, "Author is required"),
-  likesCount: z.coerce.number().int().min(0, "Likes must be 0 or more").optional(),
-  savesCount: z.coerce.number().int().min(0, "Saves must be 0 or more").optional(),
+  likesCount: z.coerce
+    .number()
+    .int()
+    .min(0, "Likes must be 0 or more")
+    .optional(),
+  savesCount: z.coerce
+    .number()
+    .int()
+    .min(0, "Saves must be 0 or more")
+    .optional(),
 });
 
 export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
   const [categories, setCategories] = useState<any[]>([]);
   const [catLoading, setCatLoading] = useState(false);
   const [showAddCat, setShowAddCat] = useState(false);
-  const [newCat, setNewCat] = useState({ name: '', description: '', color: '' });
+  const [newCat, setNewCat] = useState({
+    name: "",
+    description: "",
+    color: "",
+  });
   const [addingCat, setAddingCat] = useState(false);
   // Fetch categories on mount
-  // useEffect(() => {
-  //   setCatLoading(true);
-  //   fetchCategories()
-  //     .then(res => setCategories(res.data))
-  //     .catch(() => toast.error('Failed to load categories'))
-  //     .finally(() => setCatLoading(false));
-  // }, []);
+  useEffect(() => {
+    setCatLoading(true);
+    fetchCategories()
+      .then((res) => setCategories(res.data))
+      .catch(() => toast.error("Failed to load categories"))
+      .finally(() => setCatLoading(false));
+  }, []);
   const {
     control,
     register,
@@ -101,9 +112,9 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
       ...data,
       tags: data.tags
         ? data.tags
-          .split(",")
-          .map((tag: string) => tag.trim())
-          .filter(Boolean)
+            .split(",")
+            .map((tag: string) => tag.trim())
+            .filter(Boolean)
         : [],
       // Remove empty optional fields
       excerpt: data.excerpt || undefined,
@@ -142,7 +153,10 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
         <h2 className="text-2xl font-bold">Create New Blog Post</h2>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(processSubmit, handleFormError)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(processSubmit, handleFormError)}
+          className="space-y-6"
+        >
           {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-2">Title *</label>
@@ -349,16 +363,23 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                       <SelectTrigger className="w-64">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className=" bg-white">
                         {categories.map((cat) => (
-                          <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                          <SelectItem key={cat._id} value={cat._id}>
+                            {cat.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   )}
                 />
-                <Button type="button" size="sm" variant="outline" onClick={() => setShowAddCat(v => !v)}>
-                  {showAddCat ? 'Cancel' : 'Add New'}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAddCat((v) => !v)}
+                >
+                  {showAddCat ? "Cancel" : "Add New"}
                 </Button>
               </div>
             )}
@@ -367,20 +388,26 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                 <Input
                   placeholder="Category name"
                   value={newCat.name}
-                  onChange={e => setNewCat({ ...newCat, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewCat({ ...newCat, name: e.target.value })
+                  }
                   required
                   className="w-64"
                 />
                 <Input
                   placeholder="Description (optional)"
                   value={newCat.description}
-                  onChange={e => setNewCat({ ...newCat, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewCat({ ...newCat, description: e.target.value })
+                  }
                   className="w-64"
                 />
                 <Input
                   placeholder="#Color (optional)"
                   value={newCat.color}
-                  onChange={e => setNewCat({ ...newCat, color: e.target.value })}
+                  onChange={(e) =>
+                    setNewCat({ ...newCat, color: e.target.value })
+                  }
                   className="w-64"
                 />
                 <Button
@@ -390,21 +417,25 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                   onClick={async () => {
                     setAddingCat(true);
                     try {
-                      const token = localStorage.getItem('admin_token') || '';
+                      const token = localStorage.getItem("admin_token") || "";
                       const res = await createCategory(newCat, token);
                       setCategories((prev) => [...prev, res.data]);
-                      setValue('category', res.data._id, { shouldValidate: true });
+                      setValue("category", res.data._id, {
+                        shouldValidate: true,
+                      });
                       setShowAddCat(false);
-                      setNewCat({ name: '', description: '', color: '' });
-                      toast.success('Category added!');
+                      setNewCat({ name: "", description: "", color: "" });
+                      toast.success("Category added!");
                     } catch (err: any) {
-                      toast.error(err?.response?.data?.error || 'Failed to add category');
+                      toast.error(
+                        err?.response?.data?.error || "Failed to add category"
+                      );
                     } finally {
                       setAddingCat(false);
                     }
                   }}
                 >
-                  {addingCat ? 'Adding...' : 'Add Category'}
+                  {addingCat ? "Adding..." : "Add Category"}
                 </Button>
               </div>
             )}
@@ -415,9 +446,14 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
             {/* Author */}
             <div>
               <label className="block text-sm font-medium mb-2">Author *</label>
-              <Input placeholder="Enter author name..." {...register("author")} />
+              <Input
+                placeholder="Enter author name..."
+                {...register("author")}
+              />
               {errors.author && (
-                <p className="text-destructive text-sm mt-1">{errors.author.message}</p>
+                <p className="text-destructive text-sm mt-1">
+                  {errors.author.message}
+                </p>
               )}
             </div>
           </div>
@@ -432,41 +468,49 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                   <SelectTrigger className="w-64">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
-                  
-                    <SelectContent className=" bg-white">
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                 
+
+                  <SelectContent className=" bg-white">
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
                 </Select>
               )}
             />
             {errors.status && (
-              <p className="text-destructive text-sm mt-1">{errors.status.message}</p>
+              <p className="text-destructive text-sm mt-1">
+                {errors.status.message}
+              </p>
             )}
           </div>
-
 
           {/* Featured Image, Likes, Saves */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Featured Image (required) */}
             <div>
-              <label className="block text-sm font-medium mb-2">Featured Image *</label>
+              <label className="block text-sm font-medium mb-2">
+                Featured Image *
+              </label>
               <ImageUpload
                 onUpload={(url) => {
                   setImageUrl(url ?? "");
-                  setValue("featuredImage", url ?? "", { shouldValidate: true });
+                  setValue("featuredImage", url ?? "", {
+                    shouldValidate: true,
+                  });
                 }}
                 disabled={isSubmitting}
               />
               {errors.featuredImage && (
-                <p className="text-destructive text-sm mt-1">{errors.featuredImage.message}</p>
+                <p className="text-destructive text-sm mt-1">
+                  {errors.featuredImage.message}
+                </p>
               )}
             </div>
             {/* Likes Count */}
             <div>
-              <label className="block text-sm font-medium mb-2">Likes Count</label>
+              <label className="block text-sm font-medium mb-2">
+                Likes Count
+              </label>
               <Input
                 type="number"
                 min={0}
@@ -474,12 +518,16 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                 {...register("likesCount")}
               />
               {errors.likesCount && (
-                <p className="text-destructive text-sm mt-1">{errors.likesCount.message}</p>
+                <p className="text-destructive text-sm mt-1">
+                  {errors.likesCount.message}
+                </p>
               )}
             </div>
             {/* Saves Count */}
             <div>
-              <label className="block text-sm font-medium mb-2">Saves Count</label>
+              <label className="block text-sm font-medium mb-2">
+                Saves Count
+              </label>
               <Input
                 type="number"
                 min={0}
@@ -487,7 +535,9 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
                 {...register("savesCount")}
               />
               {errors.savesCount && (
-                <p className="text-destructive text-sm mt-1">{errors.savesCount.message}</p>
+                <p className="text-destructive text-sm mt-1">
+                  {errors.savesCount.message}
+                </p>
               )}
             </div>
           </div>

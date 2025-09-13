@@ -45,7 +45,7 @@ export default function Navigation() {
   ]
 
   return (
-    <motion.nav 
+    <motion.nav
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -56,19 +56,21 @@ export default function Navigation() {
           {/* Left Side - Logo & Nav Items */}
           <div className="flex items-center space-x-8">
             {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex-shrink-0"
-            >
-              <h1 className="text-2xl font-bold text-white tracking-wide">
+            <motion.div whileHover={{ scale: 1.05 }} className="flex-shrink-0">
+              {/* <h1 className="text-2xl font-bold text-white tracking-wide">
                 WAYA
-              </h1>
+              </h1> */}
+              <img
+                alt="founders middle east"
+                src="/images/logo.png"
+                className="h-14 w-auto"
+              />
             </motion.div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-baseline space-x-8">
               {/* READ Dropdown */}
-              <div 
+              <div
                 className="relative"
                 onMouseEnter={() => setIsReadHovered(true)}
                 onMouseLeave={() => setIsReadHovered(false)}
@@ -112,7 +114,7 @@ export default function Navigation() {
               </div>
 
               {/* Other Nav Items */}
-              {['WATCH', 'ABOUT', 'MORE', 'CONTACT'].map((item, index) => (
+              {["WATCH", "ABOUT", "MORE", "CONTACT"].map((item, index) => (
                 <motion.a
                   key={item}
                   href={`#${item.toLowerCase()}`}
@@ -131,10 +133,7 @@ export default function Navigation() {
           {/* Right Side - Search & Theme */}
           <div className="flex items-center space-x-4">
             {/* Search Button */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -146,98 +145,108 @@ export default function Navigation() {
                 <span className="hidden lg:inline text-sm">Search</span>
               </Button>
             </motion.div>
-      {/* Search Modal */}
-      <AnimatePresence>
-        {searchOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
-            onClick={() => setSearchOpen(false)}
-          >
-            <motion.form
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg relative"
-              onClick={e => e.stopPropagation()}
-              autoComplete="off"
-              onSubmit={e => {
-                e.preventDefault();
-                if (search.trim()) {
-                  setShowResults(true);
-                }
-              }}
-            >
-              <input
-                ref={inputRef}
-                type="text"
-                value={search}
-                onChange={e => {
-                  setSearch(e.target.value);
-                  setShowResults(false);
-                }}
-                onFocus={() => search && setShowResults(true)}
-                placeholder="Search stories, topics, or regions..."
-                className="w-full px-6 py-4 text-lg rounded-full border-2 bg-card text-card-foreground focus:border-orange-500 focus:outline-none shadow mb-4"
-                autoFocus
-                autoComplete="off"
-              />
-              {/* Results Dropdown */}
-              {showResults && search && (
-                <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 text-left max-h-72 overflow-y-auto">
-                  {isLoading && (
-                    <div className="px-6 py-4 text-gray-500">Searching...</div>
-                  )}
-                  {data && data.blogs && data.blogs.length > 0 ? (
-                    data.blogs.map((blog: { slug: string; title: string }) => (
-                      <button
-                        key={blog.slug}
+            {/* Search Modal */}
+            <AnimatePresence>
+              {searchOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+                  onClick={() => setSearchOpen(false)}
+                >
+                  <motion.form
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg relative"
+                    onClick={(e) => e.stopPropagation()}
+                    autoComplete="off"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (search.trim()) {
+                        setShowResults(true);
+                      }
+                    }}
+                  >
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={search}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                        setShowResults(false);
+                      }}
+                      onFocus={() => search && setShowResults(true)}
+                      placeholder="Search stories, topics, or regions..."
+                      className="w-full px-6 py-4 text-lg rounded-full border-2 bg-card text-card-foreground focus:border-orange-500 focus:outline-none shadow mb-4"
+                      autoFocus
+                      autoComplete="off"
+                    />
+                    {/* Results Dropdown */}
+                    {showResults && search && (
+                      <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 text-left max-h-72 overflow-y-auto">
+                        {isLoading && (
+                          <div className="px-6 py-4 text-gray-500">
+                            Searching...
+                          </div>
+                        )}
+                        {data && data.blogs && data.blogs.length > 0 ? (
+                          data.blogs.map(
+                            (blog: { slug: string; title: string }) => (
+                              <button
+                                key={blog.slug}
+                                type="button"
+                                className="w-full text-left px-6 py-3 hover:bg-orange-50 focus:bg-orange-100 focus:outline-none transition-colors text-base border-b last:border-b-0 border-gray-100"
+                                onClick={() => {
+                                  setSearchOpen(false);
+                                  setShowResults(false);
+                                  setSearch("");
+                                  router.push(`/blogs/${blog.slug}`);
+                                }}
+                              >
+                                {blog.title}
+                              </button>
+                            )
+                          )
+                        ) : !isLoading && search ? (
+                          <div className="px-6 py-4 text-gray-500">
+                            No results found.
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2 mt-4">
+                      <Button
                         type="button"
-                        className="w-full text-left px-6 py-3 hover:bg-orange-50 focus:bg-orange-100 focus:outline-none transition-colors text-base border-b last:border-b-0 border-gray-100"
-                        onClick={() => {
-                          setSearchOpen(false);
-                          setShowResults(false);
-                          setSearch('');
-                          router.push(`/blogs/${blog.slug}`);
-                        }}
+                        variant="ghost"
+                        onClick={() => setSearchOpen(false)}
                       >
-                        {blog.title}
-                      </button>
-                    ))
-                  ) : (!isLoading && search) ? (
-                    <div className="px-6 py-4 text-gray-500">No results found.</div>
-                  ) : null}
-                </div>
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        <Search className="h-5 w-5 mr-1" />
+                        Search
+                      </Button>
+                    </div>
+                  </motion.form>
+                </motion.div>
               )}
-              <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="ghost" onClick={() => setSearchOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white">
-                  <Search className="h-5 w-5 mr-1" />
-                  Search
-                </Button>
-              </div>
-            </motion.form>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </AnimatePresence>
 
             {/* Theme Toggle */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="text-white hover:bg-orange-600 dark:hover:bg-orange-700 hidden sm:flex transition-colors duration-200"
               >
-                {theme === 'dark' ? (
+                {theme === "dark" ? (
                   <Sun className="h-4 w-4" />
                 ) : (
                   <Moon className="h-4 w-4" />
@@ -253,7 +262,11 @@ export default function Navigation() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-white hover:bg-orange-600 dark:hover:bg-orange-700"
               >
-                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -264,7 +277,7 @@ export default function Navigation() {
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
               className="md:hidden bg-orange-600 dark:bg-orange-700 border-t border-orange-400 dark:border-orange-500"
@@ -290,7 +303,7 @@ export default function Navigation() {
                 </div>
 
                 {/* Other mobile nav items */}
-                {['WATCH', 'ABOUT', 'MORE', 'CONTACT'].map((item) => (
+                {["WATCH", "ABOUT", "MORE", "CONTACT"].map((item) => (
                   <a
                     key={item}
                     href={`#${item.toLowerCase()}`}
@@ -314,11 +327,17 @@ export default function Navigation() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    onClick={() =>
+                      setTheme(theme === "dark" ? "light" : "dark")
+                    }
                     className="text-white hover:bg-orange-700 dark:hover:bg-orange-800 flex items-center space-x-2"
                   >
-                    {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+                    {theme === "dark" ? (
+                      <Sun className="h-4 w-4" />
+                    ) : (
+                      <Moon className="h-4 w-4" />
+                    )}
+                    <span>{theme === "dark" ? "Light" : "Dark"}</span>
                   </Button>
                 </div>
               </div>
@@ -327,5 +346,5 @@ export default function Navigation() {
         </AnimatePresence>
       </div>
     </motion.nav>
-  )
+  );
 }
