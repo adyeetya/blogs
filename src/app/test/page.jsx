@@ -19,9 +19,22 @@ const ImageFlipbook = () => {
     "/images/1131w-71rDOkWy3kc.webp",
     "/images/1131w-lqndjVe3Zp0.webp",
     "/images/1236w-Db_Tlf86cmE.webp",
+    "/images/9f08ed016e480b052a02dc76fa54b5c7.jpg",
+    "/images/1131w-71rDOkWy3kc.webp",
+    "/images/1131w-lqndjVe3Zp0.webp",
+    "/images/1236w-Db_Tlf86cmE.webp",
+    "/images/9f08ed016e480b052a02dc76fa54b5c7.jpg",
+    "/images/1131w-71rDOkWy3kc.webp",
+    "/images/1131w-lqndjVe3Zp0.webp",
+    "/images/1236w-Db_Tlf86cmE.webp",
+    "/images/9f08ed016e480b052a02dc76fa54b5c7.jpg",
+    "/images/1131w-71rDOkWy3kc.webp",
+    "/images/1131w-lqndjVe3Zp0.webp",
+    "/images/1236w-Db_Tlf86cmE.webp",
   ]);
   const [currentPage, setCurrentPage] = useState(0);
   const [dimensions, setDimensions] = useState({ width: 300, height: 400 });
+  const [isFlipping, setIsFlipping] = useState(false);
   const flipBookRef = useRef(null);
 
   useEffect(() => {
@@ -48,6 +61,14 @@ const ImageFlipbook = () => {
 
   const onPageFlip = (e) => {
     setCurrentPage(e.data);
+  };
+
+  const onFlipStart = () => {
+    setIsFlipping(true);
+  };
+
+  const onFlipEnd = () => {
+    setIsFlipping(false);
   };
 
   const totalPages = pages.length;
@@ -111,21 +132,41 @@ const ImageFlipbook = () => {
           mobileScrollSupport={true}
           ref={flipBookRef}
           onFlip={onPageFlip}
+          onFlipStart={onFlipStart}
+          onFlipEnd={onFlipEnd}
           className="shadow-2xl rounded-lg border border-orange-600/10 bg-orange-50"
-          flippingTime={400}
-          style={{}}
+          flippingTime={600} // Increased from 400ms for smoother animation
+          usePortrait={true}
+          maxShadowOpacity={0.3} // Reduced shadow opacity for better performance
+          style={{
+            // Force GPU acceleration for smoother animations
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+            perspective: "1000px",
+          }}
         >
           {pages.map((src, i) => (
             <div
               key={i}
-              className="flex justify-center items-center bg-white p-2"
-              style={{ height: "100%", width: "100%" }}
+              className="flex justify-center items-center bg-white p-2 demoPage"
+              style={{
+                height: "100%",
+                width: "100%",
+                // Performance optimizations
+                transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
+              }}
             >
               <img
                 src={src}
                 alt={`Page ${i + 1}`}
                 loading="lazy"
-                className="object-contain w-full h-full transition-transform duration-300 "
+                className="object-contain w-full h-full"
+                style={{
+                  // Performance optimizations
+                  transform: "translateZ(0)",
+                  backfaceVisibility: "hidden",
+                }}
               />
             </div>
           ))}
@@ -134,28 +175,58 @@ const ImageFlipbook = () => {
         <div className="mt-6 flex items-center gap-8 select-none">
           <button
             onClick={() => flipBookRef.current?.pageFlip().flipPrev()}
-            disabled={currentPage === 0}
-            className="px-5 py-2 font-semibold rounded-lg shadow transition-colors bg-orange-600 text-white disabled:bg-orange-200 disabled:text-orange-400"
+            disabled={currentPage === 0 || isFlipping}
+            className="px-5 py-2 font-semibold rounded-lg shadow transition-colors bg-orange-600 text-white disabled:bg-orange-200 disabled:text-orange-400 hover:bg-orange-700 active:scale-95 transition-transform"
           >
             Previous
           </button>
 
           <span className="text-lg font-medium text-orange-700 bg-orange-100 px-4 py-1 rounded-full shadow">
-            Page{" "}
-            <span className="font-bold text-orange-900">
-              {currentPage + 1} / {totalPages}
-            </span>
+            {currentPage === 0 || currentPage === totalPages-1 ? (
+              <>
+                Page{" "}
+                <span className="font-bold text-orange-900">
+                  {currentPage + 1} / {totalPages}
+                </span>
+              </>
+            ) : (
+              <>
+                Page{" "}
+                <span className="font-bold text-orange-900">
+                  {currentPage + 1}-{currentPage + 2} / {totalPages}
+                </span>
+              </>
+            )}
           </span>
-
           <button
             onClick={() => flipBookRef.current?.pageFlip().flipNext()}
-            disabled={currentPage === totalPages - 1}
-            className="px-5 py-2 font-semibold rounded-lg shadow transition-colors bg-orange-600 text-white disabled:bg-orange-200 disabled:text-orange-400"
+            // Changed from totalPages - 1 to account for two-page view
+            disabled={currentPage >= totalPages - 2 || isFlipping}
+            className="px-5 py-2 font-semibold rounded-lg shadow transition-colors bg-orange-600 text-white disabled:bg-orange-200 disabled:text-orange-400 hover:bg-orange-700 active:scale-95 transition-transform"
           >
             Next
           </button>
         </div>
       </div>
+
+      {/* Add CSS for smoother animations */}
+      <style jsx>{`
+        .demoPage {
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+        }
+
+        /* Ensure pageflip container has proper 3D context */
+        :global(.page-flip) {
+          transform-style: preserve-3d;
+        }
+
+        /* Improve image rendering */
+        img {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
+        }
+      `}</style>
     </div>
   );
 };

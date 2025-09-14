@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
 import { useBlogSearch } from '@/lib/useBlogSearch'
+import Link from 'next/link'
 
 
 export default function Navigation() {
@@ -60,11 +61,13 @@ export default function Navigation() {
               {/* <h1 className="text-2xl font-bold text-white tracking-wide">
                 WAYA
               </h1> */}
-              <img
-                alt="founders middle east"
-                src="/images/logo.png"
-                className="h-14 w-auto"
-              />
+              <Link href="/" className="flex items-center">
+                <img
+                  alt="founders middle east"
+                  src="/images/logo.png"
+                  className="h-14 w-auto"
+                />
+              </Link>
             </motion.div>
 
             {/* Desktop Navigation */}
