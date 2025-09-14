@@ -255,7 +255,7 @@ useEffect(() => {
               Previous
             </button>
 
-            <span className="text-lg font-medium text-orange-700 bg-orange-100 px-4 py-1 rounded-full shadow">
+            <span className="text-xs md:text-lg font-medium text-orange-700 bg-orange-100 px-2 md:px-4 py-1 rounded-full shadow">
               {currentPage === 0 || currentPage === totalPages - 1 ? (
                 <>
                   Page{" "}
