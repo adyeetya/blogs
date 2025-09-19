@@ -3,6 +3,8 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import HTMLFlipBook from "react-pageflip";
 import { useParams } from "next/navigation";
+import axios from "axios";
+import { SERVER_URL } from "@/config";
 const mockMagazineData = {
   title: "Modern Living Magazine",
   dateOfPublish: "June 2025",
@@ -12,16 +14,10 @@ const mockMagazineData = {
     "An exclusive look at contemporary living trends, insightful interviews, and the latest in design inspiration.",
   publisher: "Living Media",
 };
-async function fetchMagazineClient(slug) {
-  const res = await axios.get(`${SERVER_URL}/api/magazines/${slug}`, {
-    withCredentials: true,
-  });
-  return res.data; // { success, data }
-}
+
 const ImageFlipbook = () => {
   const params = useParams();
   const slug = useMemo(() => String(params?.slug || ""), [params]);
-
   const [pages, setPages] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -53,6 +49,7 @@ const ImageFlipbook = () => {
   useEffect(() => {
     let ignore = false;
     async function load() {
+      console.log("Loading magazine for slug:", slug);
       if (!slug) return;
       setLoading(true);
       setErrMsg("");
@@ -178,21 +175,21 @@ const ImageFlipbook = () => {
     );
   }
 
-  if (errMsg) {
-    return (
-      <div className="flex items-center justify-center min-h-[100vh]">
-        <span className="text-red-600">{errMsg}</span>
-      </div>
-    );
-  }
+  // if (errMsg) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-[100vh]">
+  //       <span className="text-red-600">{errMsg}</span>
+  //     </div>
+  //   );
+  // }
 
-  if (!meta) {
-    return (
-      <div className="flex items-center justify-center min-h-[100vh]">
-        <span>Magazine not found</span>
-      </div>
-    );
-  }
+  // if (!meta) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-[100vh]">
+  //       <span>Magazine not found</span>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div
