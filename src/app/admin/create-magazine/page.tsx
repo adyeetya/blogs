@@ -17,7 +17,7 @@ export default function MagazineCreatePage() {
   const handleCreate = async (payload: any) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("admintoken");
+  const token = localStorage.getItem("admin_token");
 
       // 1) Create magazine metadata
       const metaRes = await axios.post(
@@ -80,8 +80,15 @@ export default function MagazineCreatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen mt-12 bg-background">
       <div className="container mx-auto py-8">
+        <button
+          onClick={() => router.push('/admin')}
+          className="mb-6 px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition"
+          type="button"
+        >
+        Back to Admin
+        </button>
         <MagazineCreate key={formKey} onSubmit={handleCreate} loading={loading} />
       </div>
 
