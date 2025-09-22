@@ -140,7 +140,7 @@ export default function Navigation() {
               </div>
 
               {/* Other Nav Items */}
-              {["WATCH", "ABOUT", "MORE", "CONTACT"].map((item, index) => (
+              {["ABOUT", "MORE", "CONTACT"].map((item, index) => (
                 <motion.a
                   key={item}
                   href={`#${item.toLowerCase()}`}

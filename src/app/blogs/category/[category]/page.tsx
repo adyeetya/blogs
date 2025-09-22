@@ -13,12 +13,14 @@ export default async function CategoryPage({
     const category = (await params).category;
    
     const res = await fetch(
-      `${SERVER_URL}/api/blogs/older?category=${encodeURIComponent(category)}`,
+      `${SERVER_URL}/api/blogs/categories/${encodeURIComponent(category)}`,
       { next: { revalidate: 3600 } }
     );
+    // console.log('Fetch response:', res);
     if (!res.ok) throw new Error("Failed to fetch blogs for category");
     const blogsRes = await res.json();
-    const blogs = blogsRes.data || [];
+    // console.log('Blogs response data:', blogsRes);
+    const blogs = blogsRes.blogs || [];
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
@@ -33,7 +35,7 @@ export default async function CategoryPage({
           ) : (
             <div className="space-y-8">
               {blogs.map((blog: any) => (
-                <div key={blog._id} className="bg-white rounded-xl shadow p-6">
+                <div key={blog.slug} className="bg-white rounded-xl shadow p-6">
                   <h2 className="text-xl font-semibold text-orange-600 mb-2">
                     {blog.title}
                   </h2>
