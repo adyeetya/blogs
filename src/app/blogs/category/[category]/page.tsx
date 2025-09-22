@@ -2,11 +2,18 @@
 import React from "react";
 import { SERVER_URL } from "@/config";
 
-export default async function CategoryPage({ params }: { params: { category: string } }) {
+type CategoryParams = Promise<{ category: string }>;
+
+export default async function CategoryPage({
+  params,
+}: {
+  params: CategoryParams;
+}) {
   try {
-    // SSR: always use absolute URL for fetch
+    const category = (await params).category;
+   
     const res = await fetch(
-      `${SERVER_URL}/api/blogs/older?category=${encodeURIComponent(params.category)}`,
+      `${SERVER_URL}/api/blogs/older?category=${encodeURIComponent(category)}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) throw new Error("Failed to fetch blogs for category");
@@ -17,10 +24,12 @@ export default async function CategoryPage({ params }: { params: { category: str
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-4xl mx-auto px-6 py-24">
           <h1 className="text-3xl font-bold text-orange-500 mb-8 capitalize">
-            Category: {params.category}
+            Category: {category}
           </h1>
           {blogs.length === 0 ? (
-            <div className="text-orange-700">No blogs found in this category.</div>
+            <div className="text-orange-700">
+              No blogs found in this category.
+            </div>
           ) : (
             <div className="space-y-8">
               {blogs.map((blog: any) => (
@@ -29,14 +38,22 @@ export default async function CategoryPage({ params }: { params: { category: str
                     {blog.title}
                   </h2>
                   <div className="text-gray-700 mb-2">
-                    {blog.excerpt || (blog.content && blog.content.slice(0, 120) + "...")}
+                    {blog.excerpt ||
+                      (blog.content && blog.content.slice(0, 120) + "...")}
                   </div>
                   <div className="flex flex-wrap gap-4 text-sm text-orange-700 mb-2">
                     {blog.author && (
-                      <span>By {typeof blog.author === "string" ? blog.author : blog.author?.name}</span>
+                      <span>
+                        By{" "}
+                        {typeof blog.author === "string"
+                          ? blog.author
+                          : blog.author?.name}
+                      </span>
                     )}
                     {blog.createdAt && (
-                      <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(blog.createdAt).toLocaleDateString()}
+                      </span>
                     )}
                   </div>
                   <a
@@ -61,7 +78,8 @@ export default async function CategoryPage({ params }: { params: { category: str
             Category Not Found
           </h1>
           <p className="text-orange-700 mb-6">
-            The category you&apos;re looking for doesn&apos;t exist or couldn&apos;t be loaded.
+            The category you&apos;re looking for doesn&apos;t exist or
+            couldn&apos;t be loaded.
           </p>
           <button
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
