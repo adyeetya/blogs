@@ -21,7 +21,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "WAYA Media - Amplifying Middle East Stories",
+  title: "Founders Middle East - Amplifying Middle East Stories",
   description: "Independent media network amplifying the new narrative of the Middle East through creative storytelling and innovative digital experiences.",
 };
 

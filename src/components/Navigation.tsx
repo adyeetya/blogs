@@ -1,24 +1,29 @@
 // components/Navigation.tsx
-'use client'
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Menu, X, Search, Sun, Moon } from 'lucide-react'
-import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { useEffect } from 'react'
-import { useBlogSearch } from '@/lib/useBlogSearch'
-import Link from 'next/link'
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Menu, X, Search, Sun, Moon } from "lucide-react";
 
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+
+import { useBlogSearch } from "@/lib/useBlogSearch";
+import { useEffect, useState, useRef } from "react";
+import { fetchCategories } from "@/lib/categoriesApi";
+import Link from "next/link";
 
 export default function Navigation() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isReadHovered, setIsReadHovered] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [search, setSearch] = useState('');
-  const { theme, setTheme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false);
+  const [isReadHovered, setIsReadHovered] = useState(false);
+  const [categories, setCategories] = useState<
+    Array<{ name: string; slug: string; color?: string; description?: string }>
+  >([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [showResults, setShowResults] = useState(false);
@@ -27,23 +32,31 @@ export default function Navigation() {
     !!search && searchOpen && showResults
   );
 
+
   // Avoid hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    setCategoriesLoading(true);
+    fetchCategories()
+      .then((data) => {
+        // Accepts { data: [...] } or { categories: [...] }
+        const arr = Array.isArray(data.data)
+          ? data.data
+          : Array.isArray(data.categories)
+          ? data.categories
+          : [];
+        setCategories(arr);
+      })
+      .catch(() => setCategories([]))
+      .finally(() => setCategoriesLoading(false));
+  }, []);
 
   if (!mounted) {
-    return null
+    return null;
   }
-
-  const readDropdownItems = [
-    { title: 'Markets', href: '#markets' },
-    { title: 'Startups', href: '#startups' },
-    { title: 'Technology', href: '#technology' },
-    { title: 'Finance', href: '#finance' },
-    { title: 'Business', href: '#business' },
-    { title: 'Innovation', href: '#innovation' }
-  ]
 
   return (
     <motion.nav
@@ -97,27 +110,37 @@ export default function Navigation() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 py-2 z-50"
+                      className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 py-2 z-50"
                     >
-                      {readDropdownItems.map((item, index) => (
-                        <motion.a
-                          key={item.title}
-                          href={item.href}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-gray-700 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-150"
-                        >
-                          {item.title}
-                        </motion.a>
-                      ))}
+                      {categoriesLoading ? (
+                        <div className="px-4 py-2 text-gray-500 text-sm">
+                          Loading...
+                        </div>
+                      ) : categories.length > 0 ? (
+                        categories.map((cat, index) => (
+                          <motion.a
+                            key={cat.slug}
+                            href={`/blogs/category/${cat.slug}`}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.04 }}
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-orange-50 dark:hover:bg-gray-700 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-150"
+                          >
+                            {cat.name}
+                          </motion.a>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-gray-500 text-sm">
+                          No categories found.
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
               {/* Other Nav Items */}
-              {["WATCH", "ABOUT", "MORE", "CONTACT"].map((item, index) => (
+              {["ABOUT", "MORE", "CONTACT"].map((item, index) => (
                 <motion.a
                   key={item}
                   href={`#${item.toLowerCase()}`}
@@ -292,16 +315,26 @@ export default function Navigation() {
                     READ
                   </div>
                   <div className="pl-4 space-y-1">
-                    {readDropdownItems.map((item) => (
-                      <a
-                        key={item.title}
-                        href={item.href}
-                        className="block text-orange-100 hover:text-white px-3 py-1 text-sm transition-colors duration-150"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {item.title}
-                      </a>
-                    ))}
+                    {categoriesLoading ? (
+                      <div className="px-3 py-1 text-orange-100 text-sm">
+                        Loading...
+                      </div>
+                    ) : categories.length > 0 ? (
+                      categories.map((cat) => (
+                        <a
+                          key={cat.slug}
+                          href={`/blogs/category/${cat.slug}`}
+                          className="block text-orange-100 hover:text-white px-3 py-1 text-sm transition-colors duration-150"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {cat.name}
+                        </a>
+                      ))
+                    ) : (
+                      <div className="px-3 py-1 text-orange-100 text-sm">
+                        No categories found.
+                      </div>
+                    )}
                   </div>
                 </div>
 

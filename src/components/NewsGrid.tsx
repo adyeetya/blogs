@@ -395,7 +395,7 @@ function NewsGridContent() {
   </section>
 
   {/* Newsletter Subscription Section */}
-  <section className="py-16 px-4 sm:px-6 lg:px-8 bg-orange-50">
+  {/* <section className="py-16 px-4 sm:px-6 lg:px-8 bg-orange-50">
     <div className="max-w-3xl mx-auto text-center">
       <h3 className="text-2xl font-semibold text-gray-900 mb-4">
         Stay Updated with Our Latest Insights
@@ -412,7 +412,7 @@ function NewsGridContent() {
         <Button className="bg-orange-500 hover:bg-orange-600 text-white">Subscribe</Button>
       </div>
     </div>
-  </section>
+  </section> */}
 </>
   );
 }

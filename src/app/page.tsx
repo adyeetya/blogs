@@ -1,10 +1,15 @@
 // app/page.tsx
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import Navigation from '@/components/Navigation'
-import NewsGrid from '@/components/NewsGrid'
-import HeroSection from '@/components/HeroSection'
+import { motion } from "framer-motion";
+import Navigation from "@/components/Navigation";
+import NewsGrid from "@/components/NewsGrid";
+import HeroSection from "@/components/HeroSection";
+import dynamic from "next/dynamic";
+
+const MagazineSection = dynamic(() => import("@/components/MagazineSection"), {
+  ssr: false,
+});
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -12,16 +17,14 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
-}
+      delayChildren: 0.2,
+    },
+  },
+};
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
-     
-      
       <motion.main
         initial="hidden"
         animate="visible"
@@ -30,7 +33,8 @@ export default function HomePage() {
       >
         <HeroSection />
         <NewsGrid />
+        <MagazineSection />
       </motion.main>
     </div>
-  )
+  );
 }

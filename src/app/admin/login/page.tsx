@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
       // Store token (adjust for your auth strategy: cookie, localStorage, etc.)
       localStorage.setItem("admin_token", res.data.data.token);
       // Redirect on success (adjust to your dashboard route)
-      router.push("/admin/create-blog");
+      router.push("/admin");
     } catch (err: any) {
       // Show the error using AdminLogin's error display
       throw err; // Let AdminLogin show error
