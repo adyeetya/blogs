@@ -46,7 +46,11 @@ export default function BlogCreatePage() {
           </div>
         );
       } else {
-        toast?.error(err?.response?.data?.error || err?.message || "Failed to create blog post");
+        toast?.error(
+          err?.response?.data?.error ||
+            err?.message ||
+            "Failed to create blog post"
+        );
       }
     } finally {
       setLoading(false);
@@ -54,9 +58,16 @@ export default function BlogCreatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen mt-12 bg-background">
       <div className="container mx-auto py-8">
-  <BlogCreate key={formKey} onSubmit={handleCreate} />
+        <button
+          onClick={() => router.push("/admin")}
+          className="mb-6 px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition"
+          type="button"
+        >
+          Back to Admin
+        </button>
+        <BlogCreate key={formKey} onSubmit={handleCreate} />
         {loading && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
             <div className="flex items-center space-x-2">
