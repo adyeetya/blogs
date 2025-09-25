@@ -22,10 +22,10 @@ export default function AdminMainPage() {
         <div className="text-muted-foreground mb-4 text-center">Manage your content below:</div>
         <div className="flex flex-col gap-4 w-full">
           <a
-            href="/admin/create-blog"
+            href="/admin/blogs"
             className="w-full px-6 py-3 rounded bg-orange-600 text-white text-center font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-2"
           >
-            <PlusCircle className="w-5 h-5" /> Create Blog
+            <PlusCircle className="w-5 h-5" /> Blogs
           </a>
           <a
             href="/admin/create-magazine"

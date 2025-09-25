@@ -15,10 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
+import BlogContentEditor from "@/components/BlogContentEditor";
 import ImageUpload from "./ImageUpload";
 import { toast } from "sonner";
 import { fetchCategories, createCategory } from "@/lib/categoriesApi";
@@ -89,21 +86,6 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
     },
   });
   const [imageUrl, setImageUrl] = useState("");
-  // Editor instance
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [StarterKit, Underline, Link.configure({ openOnClick: false })],
-    content: "",
-    onUpdate: ({ editor }) => {
-      setValue("content", editor.getHTML(), { shouldValidate: true });
-    },
-  });
-
-  // Toolbar actions
-  const addLink = useCallback(() => {
-    const url = window.prompt("Enter a URL");
-    if (url) editor?.chain().focus().setLink({ href: url }).run();
-  }, [editor]);
 
   // Process form data before submission
   const processSubmit = (data: any) => {
@@ -145,7 +127,7 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
     }
   };
 
-  if (!editor) return null;
+
 
   return (
     <Card className="max-w-4xl mx-auto my-10">
@@ -171,155 +153,22 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
           {/* Content Editor */}
           <div>
             <label className="block text-sm font-medium mb-2">Content *</label>
-            {/* Toolbar */}
-            <div className="flex flex-wrap gap-1 mb-2 border rounded px-2 py-2 bg-muted/40">
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleBold().run()}
-                className={editor.isActive("bold") ? "bg-muted" : ""}
-              >
-                <b>B</b>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                className={editor.isActive("italic") ? "bg-muted" : ""}
-              >
-                <i>I</i>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleUnderline().run()}
-                className={editor.isActive("underline") ? "bg-muted" : ""}
-              >
-                <u>U</u>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleStrike().run()}
-                className={editor.isActive("strike") ? "bg-muted" : ""}
-              >
-                <s>S</s>
-              </Button>
-              <div className="border-l mx-1" />
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() =>
-                  editor.chain().focus().toggleHeading({ level: 1 }).run()
-                }
-                className={
-                  editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""
-                }
-              >
-                H1
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() =>
-                  editor.chain().focus().toggleHeading({ level: 2 }).run()
-                }
-                className={
-                  editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""
-                }
-              >
-                H2
-              </Button>
-              <div className="border-l mx-1" />
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                className={editor.isActive("bulletList") ? "bg-muted" : ""}
-              >
-                • List
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                className={editor.isActive("orderedList") ? "bg-muted" : ""}
-              >
-                1. List
-              </Button>
-              <div className="border-l mx-1" />
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                className={editor.isActive("blockquote") ? "bg-muted" : ""}
-              >
-                Quote
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                className={editor.isActive("codeBlock") ? "bg-muted" : ""}
-              >
-                Code
-              </Button>
-              <div className="border-l mx-1" />
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={addLink}
-                className={editor.isActive("link") ? "bg-muted" : ""}
-              >
-                Link
-              </Button>
-              <div className="border-l mx-1" />
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().undo().run()}
-                disabled={!editor.can().chain().focus().undo().run()}
-              >
-                ↶
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={() => editor.chain().focus().redo().run()}
-                disabled={!editor.can().chain().focus().redo().run()}
-              >
-                ↷
-              </Button>
-            </div>
-
-            {/* Editor Content */}
             <Controller
               name="content"
               control={control}
-              render={() => (
-                <div>
-                  <div className="border rounded min-h-[300px] p-4 prose prose-sm max-w-none">
-                    <EditorContent editor={editor} />
-                  </div>
+              render={({ field }) => (
+                <>
+                  <BlogContentEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
+                  />
                   {errors.content && (
                     <p className="text-destructive text-sm mt-1">
                       {errors.content.message}
                     </p>
                   )}
-                </div>
+                </>
               )}
             />
           </div>
