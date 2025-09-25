@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -7,7 +8,13 @@ import { SERVER_URL } from "@/config";
 import { fetchCategories } from "@/lib/categoriesApi";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/app/admin/create-blog/ImageUpload";
 import BlogContentEditor from "@/components/BlogContentEditor";
@@ -46,7 +53,9 @@ const EditBlogPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setBlog({ ...blog, [e.target.name]: e.target.value });
   };
 
@@ -72,7 +81,12 @@ const EditBlogPage = () => {
         ...rest,
         tags: Array.isArray(blog.tags)
           ? blog.tags
-          : (typeof blog.tags === "string" ? blog.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : []),
+          : typeof blog.tags === "string"
+          ? blog.tags
+              .split(",")
+              .map((t: string) => t.trim())
+              .filter(Boolean)
+          : [],
         category: blog.category?._id || blog.category || undefined,
       };
       console.log("Updating blog with payload:", payload);
@@ -85,7 +99,9 @@ const EditBlogPage = () => {
       toast.success("Blog updated successfully");
       router.push("/admin/blogs");
     } catch (err: any) {
-      setError(err?.response?.data?.error || err?.message || "Failed to update blog");
+      setError(
+        err?.response?.data?.error || err?.message || "Failed to update blog"
+      );
     } finally {
       setSaving(false);
     }
@@ -94,7 +110,12 @@ const EditBlogPage = () => {
   // Delete blog handler
   const handleDelete = async () => {
     if (!blog?._id) return;
-    if (!window.confirm("Are you sure you want to delete this blog? This action cannot be undone.")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this blog? This action cannot be undone."
+      )
+    )
+      return;
     setSaving(true);
     setError("");
     try {
@@ -107,16 +128,17 @@ const EditBlogPage = () => {
       toast.success("Blog deleted successfully");
       router.push("/admin/blogs");
     } catch (err: any) {
-      setError(err?.response?.data?.error || err?.message || "Failed to delete blog");
+      setError(
+        err?.response?.data?.error || err?.message || "Failed to delete blog"
+      );
     } finally {
       setSaving(false);
     }
   };
 
-
-
   if (loading) return <div className="p-8 h-screen mt-12">Loading...</div>;
-  if (error) return <div className="p-8 text-red-500 h-screen mt-12">{error}</div>;
+  if (error)
+    return <div className="p-8 text-red-500 h-screen mt-12">{error}</div>;
   if (!blog) return <div className="p-8 h-screen mt-12">Blog not found.</div>;
 
   return (
