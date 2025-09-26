@@ -77,3 +77,44 @@
     background-color: rgb(var(--muted));
   }
 }
+
+
+/* Essential image styles for blog content display */
+.editor-image,
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Image alignment styles */
+.blog-content img[data-align="left"],
+.editor-image[data-align="left"] {
+  float: left;
+  margin: 0 16px 16px 0;
+}
+
+.blog-content img[data-align="center"],
+.editor-image[data-align="center"] {
+  display: block;
+  margin: 16px auto;
+}
+
+.blog-content img[data-align="right"],
+.editor-image[data-align="right"] {
+  float: right;
+  margin: 0 0 16px 16px;
+}
+
+/* Clear floats to prevent layout issues */
+.blog-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Ensure paragraphs after floated images behave correctly */
+.blog-content p {
+  overflow: hidden; /* Contains floated elements */
+}

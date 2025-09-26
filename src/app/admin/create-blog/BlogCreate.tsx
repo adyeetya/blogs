@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import BlogContentEditor from "@/components/BlogContentEditor";
+// import BlogContentEditor from "@/components/BlogContentEditor";
+import BlogContentEditor from "@/components/UpdatedBlogsContentEditor";
 import ImageUpload from "./ImageUpload";
 import { toast } from "sonner";
 import { fetchCategories, createCategory } from "@/lib/categoriesApi";
@@ -126,8 +127,6 @@ export function BlogCreate({ onSubmit }: { onSubmit: (data: any) => void }) {
       );
     }
   };
-
-
 
   return (
     <Card className="max-w-4xl mx-auto my-10">

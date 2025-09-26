@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -18,8 +18,9 @@ export default function BlogContentEditor({
   disabled = false,
   minHeight = "300px",
 }: BlogContentEditorProps) {
+  const [, setRenderTick] = useState(0);
   const editor = useEditor({
-    immediatelyRender:false,
+    immediatelyRender: false,
     extensions: [StarterKit, Underline, Link.configure({ openOnClick: false })],
     content: value,
     editable: !disabled,
@@ -27,6 +28,32 @@ export default function BlogContentEditor({
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const forceRerender = () => {
+      setRenderTick((tick) => tick + 1);
+    };
+
+    // Listen to selection and transaction updates
+    editor.on("selectionUpdate", forceRerender);
+    editor.on("transaction", forceRerender);
+
+    // Cleanup listeners
+    return () => {
+      editor.off("selectionUpdate", forceRerender);
+      editor.off("transaction", forceRerender);
+    };
+  }, [editor]);
+
+  // Update editor content when value prop changes
+  useEffect(() => {
+    if (!editor || editor.getHTML() === value) return;
+
+    // Update content without emitting to avoid infinite loops
+    editor.commands.setContent(value, { emitUpdate: false });
+  }, [value, editor]);
 
   // Toolbar actions
   const addLink = useCallback(() => {
@@ -81,7 +108,9 @@ export default function BlogContentEditor({
           variant="ghost"
           size="sm"
           type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           className={editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""}
         >
           H1
@@ -90,7 +119,9 @@ export default function BlogContentEditor({
           variant="ghost"
           size="sm"
           type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           className={editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""}
         >
           H2
@@ -164,7 +195,10 @@ export default function BlogContentEditor({
         </Button>
       </div>
       {/* Editor Content */}
-      <div className="border rounded p-4 prose prose-sm max-w-none" style={{ minHeight }}>
+      <div
+        className="border rounded p-4 prose prose-sm max-w-none"
+        style={{ minHeight }}
+      >
         <EditorContent editor={editor} />
       </div>
     </div>

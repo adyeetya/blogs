@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/app/admin/create-blog/ImageUpload";
-import BlogContentEditor from "@/components/BlogContentEditor";
+// import BlogContentEditor from "@/components/BlogContentEditor";
+import BlogContentEditor from "@/components/UpdatedBlogsContentEditor";
 import { toast } from "sonner";
 
 const EditBlogPage = () => {
